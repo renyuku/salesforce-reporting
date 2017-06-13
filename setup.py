@@ -3,7 +3,7 @@ from setuptools import setup
 setup(
   name = 'salesforce-reporting',
   packages = ['salesforce_reporting'],
-  version = '0.1.2',
+  version = '0.1.2a',
   description = 'Get data from Salesforce reports with python',
   author = 'Chris Hall',
   author_email = 'chris@impactbox.co.uk',

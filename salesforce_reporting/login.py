@@ -2,6 +2,7 @@
 import requests
 import xml.dom.minidom
 
+
 try:
     # Python 3+
     from html import escape
@@ -114,10 +115,17 @@ class Connection:
     def _get_report_filtered(self, url, filters):
         metadata_url = url.split('?')[0]
         metadata = self._get_metadata(metadata_url)
+
         for report_filter in filters:
             metadata["reportMetadata"]["reportFilters"].append(report_filter)
 
-        return requests.post(url, headers=self.headers, json=metadata).json()
+        filters_orig=metadata['reportMetadata']['reportFilters']
+        for report_filter in filters:
+            filters_orig.append(report_filter)
+
+        filters_payload={'reportMetadata':{'reportFilters':filters_orig}}
+
+        return requests.post(url, headers=self.headers, json=filters_payload).json()
 
     def _get_report_all(self, url):
         return requests.post(url, headers=self.headers).json()
@@ -144,11 +152,22 @@ class Connection:
         if filters:
             return self._get_report_filtered(url, filters)
         else:
-            return self._get_report_all(url)
+            return self._get_report_all(url) ####
+
+    def get_report_full(self, report_id, filters=None, details=True):
+        report_data = self.get_report(report_id)
+        output = get_output(report_data)
+        return output
+
 
     def get_dashboard(self, dashboard_id):
         url = '{}/dashboards/{}/'.format(self.base_url, dashboard_id)
         return requests.get(url, headers=self.headers).json()
+
+def get_output(report):
+    parser = ReportParser(report)
+    output = parser.records_dict()
+    return output
 
 
 class AuthenticationFailure(Exception):
